@@ -1,4 +1,3 @@
-import React from 'react';
 import { Upload, Wand2, Download, Share2 } from 'lucide-react';
 
 const features = [

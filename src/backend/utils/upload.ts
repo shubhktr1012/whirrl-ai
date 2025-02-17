@@ -4,12 +4,21 @@ import multer from 'multer';
 // Importing the path module for working with file and directory paths
 import path from 'path';
 
+// Importing the fs module for file system operations
+import fs from 'fs';
+
 // Configuring the storage settings for multer
+const uploadDir = process.env.UPLOAD_DIR || './uploads';
+
+// Ensure upload directory exists
+if (!fs.existsSync(uploadDir)) {
+    fs.mkdirSync(uploadDir, { recursive: true });
+}
+
 const storage = multer.diskStorage({
     // Setting the destination for uploaded files
     destination: (_req, _file, cb) => {
-        // Callback to specify the upload directory, defaults to './uploads' if not set
-        cb(null, process.env.UPLOAD_DIR || './uploads');
+        cb(null, uploadDir);
     },
     // Setting the filename for uploaded files
     filename: (_req, file, cb) => {
