@@ -1,0 +1,110 @@
+# Project: Whirrl.ai
+# Description: This file contains coding standards and guidelines for the Whirrl.ai project to ensure smooth development, debugging, and scaling.
+# Note: Adhere to the DRY (Don't Repeat Yourself) principle to avoid redundant code and ensure that past mistakes are not repeated.
+
+## 1️⃣ General Development Guidelines
+- **Follow a Structured Debugging Approach:** Always check logs, backend status, and frontend errors systematically before assuming an issue.
+- **Ensure Backend is Running Before Testing Frontend:** Many issues have arisen due to the backend not being started.
+- **Log API Responses Properly:** Always log `response.json()` and not just `response` to ensure the correct data format is being returned.
+- **Keep Code Organized & Versioned:** Use Git effectively to track changes and revert if necessary.
+- **Follow the DRY Principle:** Write modular, reusable code to minimize redundancy, and ensure that both developers and the AI do not repeat previously made mistakes.
+
+## 2️⃣ Project Structure & Code Organization
+- **Frontend:** TypeScript + React + TailwindCSS
+- **Backend:** Node.js + Express + TypeScript
+- **Media Processing:** FFmpeg + Whisper AI
+- **File Handling:** Multer for uploads, proper directory structuring (`uploads/`, `gifs/`, `audio/`)
+- **Job Queues:** BullMQ
+- **Security:** Content Security Policy (CSP) and CORS handling
+- **State Management:** React `useState` hooks for UI updates
+- **Requests Handling:** Fetch API with error handling & logging
+
+## Project File Structure
+whirrl.ai/
+├── frontend/
+│ ├── src/
+│ │ ├── components/
+│ │ ├── pages/
+│ │ ├── App.tsx
+│ │ └── index.tsx
+│ ├── public/
+│ │ ├── index.html
+│ │ └── assets/
+│ └── package.json
+├── backend/
+│ ├── src/
+│ │ ├── controllers/
+│ │ ├── models/
+│ │ ├── routes/
+│ │ ├── server.ts
+│ │ └── config/
+│ ├── package.json
+│ └── tsconfig.json
+├── media/
+│ ├── uploads/
+│ ├── gifs/
+│ └── audio/
+├── scripts/
+│ ├── build.sh
+│ └── deploy.sh
+└── README.md
+
+
+## 3️⃣ API & Backend Communication
+- **Always use `POST` requests for video uploads.**
+- **Expected API Response:** `{ message: 'GIFs generated successfully!', gifUrls: [...] }`
+- **GIF Serving Path:** Ensure `/gifs/` is correctly exposed in `server.ts`
+- **Set proper headers for CORS handling** (`Access-Control-Allow-Origin` for `http://localhost:5173`)
+- **Debugging Upload Issues:**
+  - Check backend logs (`console.log`) for errors
+  - Use `curl` commands to test manual uploads
+  - Ensure `ALLOWED_FORMATS` matches expected MIME types
+
+## 4️⃣ Common Mistakes & Their Fixes
+
+### 🔹 CORS Issues
+- Ensure backend allows requests from `http://localhost:5173`.
+- Explicitly define `Access-Control-Allow-Origin` and methods in `cors()` middleware.
+- Always restart the backend after making changes to CORS settings.
+
+### 🔹 File Format & MIME Type Issues
+- `Invalid file format` errors even when the file is correct → Log `req.file.mimetype` and compare it to `ALLOWED_FORMATS`.
+- Ensure correct MIME types are included in the backend's validation.
+
+### 🔹 Serving Static Files Correctly (GIFs, Images, etc.)
+- Always verify if `express.static(path.join(__dirname, 'gifs'))` is correctly serving files.
+- Confirm the expected file paths using `console.log(path.join(__dirname, 'gifs'))`.
+- Ensure frontend fetches from `http://localhost:5000/gifs/filename.gif`, not `http://localhost:5000/gifs/http://localhost:5000/gifs/filename.gif`.
+
+### 🔹 API Not Fetching Data Properly
+- Check if `fetch()` URL matches exactly with the backend API endpoint.
+- Verify that API methods (`GET`, `POST`) are correctly implemented in both frontend and backend.
+- If `Failed to fetch` occurs, check if the backend is running and not crashing.
+
+### 🔹 Frontend Not Updating After Backend Response
+- Ensure state updates are handled correctly (e.g., `setGifUrls(response.gifUrls)`).
+- Always verify that `.map()` is iterating over an array and not `undefined`.
+
+### 🔹 Content Security Policy (CSP) Blocks
+- Update `<meta http-equiv="Content-Security-Policy">` in `index.html` to allow necessary external sources.
+- Ensure `img-src` includes `http://localhost:5000` to allow GIFs to be displayed.
+
+## 5️⃣ Frontend UI/UX Standards
+- **File Upload:** Show progress bar updates accurately.
+- **Preview Handling:** Only enable preview button when GIFs are ready.
+- **GIF Gallery:**
+  - Dynamically update with received GIF URLs.
+  - Include hover/download animations.
+  - Ensure `/gifs/` path is correct when displaying images.
+- **Timeout Handling:** Set fetch timeout (e.g., 5 mins for uploads, 10 sec for GIF verification).
+
+## 6️⃣ Efficiency & Best Practices for Future Projects
+- **Use a Standardized Project Structure:** Keep `frontend/` and `backend/` folders clearly separated.
+- **Set Up Git Properly:** Ensure `.gitignore` excludes `node_modules/`, `.env`, and generated files (e.g., `gifs/` and `uploads/`).
+- **Implement Proper Logging:** Always add `console.log()` statements to debug API requests and responses effectively.
+- **Automate Cleanup Tasks:** Ensure temporary files (SRT, WAV, TXT) are deleted after use to avoid unnecessary storage usage.
+- **Have a Template for New Projects:** Maintain a boilerplate with reusable configurations, including CORS settings, error handling, and API structuring.
+
+---
+
+This file ensures smooth development, debugging, and scaling for Whirrl.ai and future projects while emphasizing the DRY principle to prevent repeating past mistakes. 🚀
