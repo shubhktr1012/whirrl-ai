@@ -6,13 +6,12 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0" /> <!-- Viewport settings -->
     
     <!-- Security/CSP Header (Adjust in Production) -->
-    <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' 'unsafe-inline' https://cdn.tailwindcss.com; style-src 'self' 'unsafe-inline' fonts.googleapis.com; font-src fonts.gstatic.com; img-src 'self' data: https://images.unsplash.com http://localhost:5000; connect-src 'self' http://localhost:5000;">
+    <meta http-equiv="Content-Security-Policy" content="default-src 'self' blob: data:; media-src blob: data:; script-src 'self' 'unsafe-inline' https://cdn.tailwindcss.com; style-src 'self' 'unsafe-inline' fonts.googleapis.com; font-src fonts.gstatic.com; img-src 'self' data: blob: https://images.unsplash.com http://localhost:5000 https://media.giphy.com; connect-src 'self' http://localhost:5000;">
 
     <!-- Content Security Policy -->
     
     <!-- Title & Favicon -->
     <title>Whirrl.ai | AI-Powered Video to GIF Converter</title> <!-- Document title -->
-    <link rel="icon" type="image/x-icon" href="/favicon.ico"> <!-- Favicon -->
     <link rel="icon" type="image/svg+xml" href="/src/assets/favicon.svg"> <!-- Favicon -->
     
     <!-- Fonts -->

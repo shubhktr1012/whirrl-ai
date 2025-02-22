@@ -1,6 +1,7 @@
 /** @type {import('tailwindcss').Config} */
-export default {
-  content: ['./index.html', './src/**/*.{js,ts,jsx,tsx}'],
+module.exports = {
+  darkMode: "class",
+  content: ["./index.html", "./src/**/*.{js,ts,jsx,tsx}"],
   theme: {
     extend: {
       // 1. Add your color palette (matches your UI design brief)
@@ -15,7 +16,8 @@ export default {
       // 2. Add custom fonts (Space Mono + Inter)
       fontFamily: {
         heading: ['Space Mono', 'monospace'],
-        body: ['Inter', 'sans-serif']
+        body: ['Inter', 'sans-serif'],
+        haas: ['Neue Haas Grotesk', 'sans-serif'],
       },
 
       // 3. Add animations for microinteractions

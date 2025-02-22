@@ -129,37 +129,29 @@ router.post('/upload', upload.single('video'), async (req: Request, res: Respons
         }
       }
 
-      // If timestamps are provided, map them into ManualSegment objects
-      let selectedSegments: ManualSegment[] = [];
-      if (timestamps.length > 0) {
-        selectedSegments = timestamps.map(({ start: userStart, end: userEnd }: Timestamp) => {
-          // Find the speech segment that falls within the user range
-          const matched = speechSegments.find(seg =>
-            seg.start >= userStart - 0.5 && seg.end <= userEnd + 0.5
-          );
-          if (!matched) {
-            console.warn(`⚠️ No speech segment found for user timestamp ${userStart}-${userEnd}`);
-            return null;
-          }
-          console.log(`✅ Matched segment for ${userStart}-${userEnd}:`, matched);
-          return {
-            userStart,
-            userEnd,
-            speechStart: matched.start,
-            speechEnd: matched.end,
-            text: matched.text
-          };
-        }).filter(Boolean) as ManualSegment[];
-      } else if (selectedSegments.length === 0) {
-        console.warn("⚠️ No valid timestamps found. Falling back to first 5 speech segments.");
-        selectedSegments = speechSegments.slice(0, 5).map((seg: SpeechSegment) => ({
+      /// Ensure timestamps are properly formatted and safe to use
+      let selectedSegments: ManualSegment[] = timestamps.length > 0
+      ? timestamps.map(({ start, end, useCustomText, customText }: { 
+          start: string; 
+          end: string; 
+          useCustomText: boolean; 
+          customText: string; 
+        }) => ({
+          userStart: Number(start),
+          userEnd: Number(end),
+          speechStart: Number(start),  
+          speechEnd: Number(end),
+          text: useCustomText ? customText : "",  // If useCustomText is enabled, use it
+        }))
+      : speechSegments.slice(0, 5).map(seg => ({
           userStart: seg.start,
           userEnd: seg.end,
           speechStart: seg.start,
           speechEnd: seg.end,
-          text: seg.text
+          text: seg.text,
         }));
-      }    
+
+      console.log("🎯 Final Segments for GIFs:", selectedSegments);
 
       const transcriptText = transcriptLines.join(" ");
       console.log("Transcription Text:", transcriptText);
@@ -169,7 +161,9 @@ router.post('/upload', upload.single('video'), async (req: Request, res: Respons
       let fontSize = req.body.fontSize ? parseInt(req.body.fontSize) : 24; // Convert only numbers
       if (isNaN(fontSize) || fontSize <= 0) {
         console.warn('⚠️ Invalid font size received. Using default (24px).');
-        fontSize = 24;
+        fontSize = 24; // Fallback to default if invalid
+      } else {
+        fontSize = Math.max(fontSize, 24); // Ensure font size is at least 24
       }
 
       let fontColor = req.body.fontColor ? req.body.fontColor.replace("#", "") : "FFFFFF"; // Keep as a string
@@ -189,7 +183,7 @@ router.post('/upload', upload.single('video'), async (req: Request, res: Respons
       const mockCaptions = "This is a sample caption. Replace with Whisper transcription."; // Placeholder for captions */
       
       // Extract video metadata including width, height
-      const { width, height } = await getVideoMetadata(req.file.path);  // Remove duration since we already have it
+      // const { width, height } = await getVideoMetadata(req.file.path);  // Remove duration since we already have it
 
       console.log("📝 Received JSON Body:", req.body);
       console.log("🎯 Segments being passed to GIF function:", selectedSegments);
@@ -197,10 +191,10 @@ router.post('/upload', upload.single('video'), async (req: Request, res: Respons
       const gifPaths = await convertToGIF( 
         req.file.path,  // Path to uploaded video
         gifOutputDir,   // Output directory for the GIFs
-        selectedSegments, // Use selectedSegments instead of segmentsToUse
+        selectedSegments, // Use updated segments with custom text
         { 
           fontName: fontFamily, 
-          fontSize: Math.round(height * 0.05),  // 5% of video height
+          fontSize: fontSize,  // Updated to use fontSize variable
           fontColor, 
         }
       );
